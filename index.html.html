@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Airport Adventure</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@500;700;800&display=swap">
+<style>
+:root{--sky1:#3d8fe0;--sky2:#bfe6ff;--ink:#1f2a44;--card:#fff8e6;--gold:#ffc531;--red:#e8484f;--green:#2fae66;--grass:#46b36b;--dirt:#7a5232;--muted:#5b6785;--ok:#d5f5df;--bad:#ffdcdc;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sky1:#0f1d3d;--sky2:#2b3f78;--ink:#f3ecd8;--card:#1f2a4a;--muted:#a9b4d4;--ok:#1d4a33;--bad:#57262b;--dirt:#4a3220;--grass:#2f8a51}}
+:root[data-theme="dark"]{--sky1:#0f1d3d;--sky2:#2b3f78;--ink:#f3ecd8;--card:#1f2a4a;--muted:#a9b4d4;--ok:#1d4a33;--bad:#57262b;--dirt:#4a3220;--grass:#2f8a51}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:'Nunito',system-ui,sans-serif;font-weight:700;color:var(--ink);background:linear-gradient(var(--sky1),var(--sky2)) fixed;padding-bottom:70px}
+body:after{content:"";position:fixed;left:0;right:0;bottom:0;height:44px;background:repeating-linear-gradient(90deg,var(--dirt) 0 40px,color-mix(in srgb,var(--dirt) 80%,#000) 40px 42px);border-top:14px solid var(--grass);z-index:-1}
+.px{font-family:'Press Start 2P',monospace;line-height:1.5}
+main{max-width:640px;margin:0 auto;padding:16px}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.35);margin-bottom:10px}
+.path{display:flex;gap:6px;margin-bottom:16px}
+.path i{flex:1;height:10px;border:2px solid var(--ink);background:rgba(255,255,255,.5)}
+.path i.d{background:var(--gold)}.path i.c{background:var(--green)}
+.card{background:var(--card);border:4px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:20px;border-radius:6px}
+h1,h2{margin:0 0 14px;font-size:18px}
+h1{font-size:22px}
+p{margin:0 0 14px;line-height:1.55;font-size:17px}
+.pt{color:var(--muted);font-size:15px}
+.big{font-size:44px;text-align:center;margin-bottom:8px}
+.bubble{background:#fff;color:#1f2a44;border:3px solid #1f2a44;border-radius:14px;padding:12px 14px;font-size:19px;margin:0 0 14px;font-style:italic}
+.board{background:#0d1a33;color:#ffd84d;border:3px solid #1f2a44;padding:12px;margin-bottom:14px;font-family:'Press Start 2P',monospace;font-size:11px;line-height:2}
+.board b{color:#fff;font-weight:400}
+.opt{display:block;width:100%;text-align:left;font:inherit;font-size:17px;color:#1f2a44;background:#fff;border:3px solid var(--ink);border-bottom-width:6px;border-radius:8px;padding:12px 14px;margin-bottom:10px;cursor:pointer}
+.opt:hover:not(:disabled){background:#fff3c4}
+.opt.ok{background:var(--ok);color:var(--ink);border-color:var(--green)}
+.opt.no{background:var(--bad);color:var(--ink);border-color:var(--red)}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.go{font-family:'Press Start 2P',monospace;font-size:12px;background:var(--gold);color:#1f2a44;border:3px solid var(--ink);border-bottom-width:6px;padding:14px 18px;border-radius:6px;cursor:pointer;margin-top:6px}
+.go:active{transform:translateY(2px)}
+.fb{border:3px solid var(--ink);border-radius:8px;padding:12px;margin-top:6px;font-size:16px;line-height:1.5;background:var(--ok);color:var(--ink)}
+.fb.bad{background:var(--bad)}
+.hp{height:14px;border:3px solid var(--ink);background:#fff;margin-bottom:12px}
+.hp div{height:100%;background:var(--red);transition:width .4s}
+.plane{display:inline-block;animation:fly 3s ease-in-out infinite}
+@keyframes fly{50%{transform:translateY(-8px) rotate(-4deg)}}
+@media (prefers-reduced-motion:reduce){.plane{animation:none}.hp div{transition:none}}
+ul{padding-left:20px;margin:0 0 14px;line-height:1.6}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const W=[
+{n:"World 1 · Check-in",e:"🧳",t:"You arrive at the airport with your suitcase. First stop: the check-in counter.",p:"Você chegou ao aeroporto. Primeira parada: o balcão de check-in.",q:[
+{s:"The airport employee asks:",q:"“May I see your passport, please?”",a:["Sure, here you go.","No, I don’t like it.","It’s very heavy."],x:"“Here you go” é o que dizemos ao entregar algo a alguém."},
+{s:"You want to know the baggage limit. What do you ask?",a:["How many bags can I check?","How many bags can I board?","How many bags is my gate?"],x:"Usamos “check” para despachar malas: check a bag."},
+{s:"You are lost and can’t find the counter for your airline.",a:["Excuse me, where is the check-in counter?","Excuse me, where is the pilot’s seat?","Excuse me, where is my delay?"],x:"“Check-in counter” é o balcão onde você faz o check-in."}]},
+{n:"World 2 · Security",e:"🔐",t:"Now you must go through security. Stay calm and follow the officer’s instructions.",p:"Agora você passa pela segurança. Siga as instruções do agente.",q:[
+{s:"The officer asks:",q:"“Do you need to take anything out of your bag?”",a:["Yes, my laptop.","Yes, my hotel.","Yes, gate 12."],x:"Em geral, notebooks precisam sair da mochila na inspeção."},
+{s:"The officer says:",q:"“Please take off your shoes.”",a:["Sure. Do I put them in the tray?","No, my flight is delayed.","I’m looking for the baggage claim."],x:"“Tray” é a bandeja onde você coloca seus objetos."},
+{s:"You have a bottle of water. What do you ask?",a:["Can I bring this water through security?","Is my flight delayed?","Where is the baggage claim?"],x:"“Can I bring…?” serve para perguntar se algo é permitido."}]},
+{n:"World 3 · Find your gate",e:"🚪",t:"You passed security! Now read the information board carefully.",p:"Você passou pela segurança! Agora leia bem o painel de informações.",q:[
+{s:"Your flight is 247. Read the board.",b:"FLIGHT <b>247</b><br>GATE <b>12</b><br>STATUS <b>DELAYED</b>",a:["Go to Gate 12 and wait.","Go through immigration again.","Check your luggage."],x:"“Delayed” = atrasado. O portão continua o mesmo: espere lá."},
+{s:"You have a ticket for Flight 310.",b:"FLIGHT <b>310</b><br>GATE <b>8</b><br>STATUS <b>BOARDING</b>",a:["Passengers can get on the plane now.","The plane will arrive in three hours.","The flight is cancelled."],x:"“Boarding” = embarque. Os passageiros já podem entrar no avião."},
+{s:"You can’t find your gate. What do you ask?",a:["Excuse me, how do I get to Gate 12?","Excuse me, how many bags do I have?","Excuse me, can I change my seat?"],x:"“How do I get to…?” pede o caminho até um lugar."}]},
+{n:"World 4 · On the plane",e:"💺",t:"You are on the plane. Time to be polite with the flight attendant and other passengers.",p:"Você está no avião. Hora de ser educado com a comissária e os outros passageiros.",q:[
+{s:"Your seat is 18A, but you want to sit next to your friend in 18B.",a:["Excuse me, can I change seats?","Excuse me, can I change my flight?","Excuse me, where is my luggage?"],x:"“Change seats” = trocar de assento."},
+{s:"You are thirsty. What do you ask the flight attendant?",a:["Could I have some water, please?","Could I check some water, please?","Could I board some water, please?"],x:"“Could I have…?” é a forma educada de pedir algo."},
+{s:"You need to use the restroom.",a:["Excuse me, where is the bathroom?","Excuse me, where is the baggage claim?","Excuse me, where is the check-in?"],x:"“Bathroom” e “restroom” são usados para o banheiro."}]},
+{n:"World 5 · Connection",e:"🛬",t:"You landed, but this is not your final stop. You need to catch a connecting flight.",p:"Você pousou, mas este não é o destino final. Falta o voo de conexão.",q:[
+{s:"You have a connecting flight to Lisbon. What do you ask?",a:["Where is the gate for my connecting flight?","Where is my hotel reservation?","Where can I rent a car?"],x:"“Connecting flight” = voo de conexão."},
+{s:"The immigration officer asks:",q:"“What is the purpose of your visit?”",a:["Tourism. I’m on vacation.","Gate 12, please.","I have two bags."],x:"“Purpose of your visit” = motivo da viagem."},
+{s:"The immigration officer asks:",q:"“How long are you staying?”",a:["For two weeks.","At Gate 12.","In seat 18A."],x:"“How long” pergunta a duração. Responda com “for + tempo”."}]},
+{n:"World 6 · Emergency!",e:"🚨",t:"Oh no! Something is wrong. Use your English to solve the problem.",p:"Ops! Algo deu errado. Use seu inglês para resolver.",q:[
+{s:"At baggage claim, your suitcase isn’t there. You tell the employee:",a:["My luggage is missing.","My flight is missing.","My passport is missing."],x:"“Luggage” é a bagagem. “Missing” = desaparecido."},
+{s:"You can’t find your passport anywhere.",a:["I lost my passport. Can you help me, please?","I lost my luggage. Can I board, please?","I lost my seat. Can I check in, please?"],x:"“I need help, please” e “Can you help me?” são frases essenciais."},
+{s:"Where do you report a bag that never arrived?",a:["Where can I report my missing bag?","Where can I board my missing bag?","Where can I delay my missing bag?"],x:"“Report” = comunicar oficialmente um problema."}]},
+{n:"FINAL BOSS · Survive the airport",e:"🏆",t:"8 situations. No hints. Every mistake costs a heart. Ready?",p:"8 situações, sem dicas. Cada erro custa um coração. Pronto?",q:[
+{s:"At check-in:",q:"“Do you have any bags to check?”",a:["Yes, one suitcase.","Yes, at Gate 12.","Yes, for two weeks."],x:"A pergunta é sobre malas, então responda com a quantidade."},
+{s:"At security:",q:"“Please put your laptop in the tray.”",a:["Sure, no problem.","No, I’m boarding.","It’s in my hotel."],x:"“Sure, no problem” é uma resposta natural a um pedido."},
+{s:"You have a boarding pass for Flight 512.",b:"FLIGHT <b>512</b><br>GATE <b>4</b><br>STATUS <b>BOARDING</b>",a:["Go to Gate 4 now.","Go to baggage claim.","Return to security."],x:"Status “Boarding”: vá agora ao portão indicado."},
+{s:"On the plane, the flight attendant asks:",q:"“Would you like chicken or pasta?”",a:["Pasta, please.","Gate 12, please.","Yes, I’m delayed."],x:"Para escolher entre duas opções, diga qual você prefere."},
+{s:"Someone is sitting in your seat, 22C.",a:["Excuse me, I think this is my seat.","Excuse me, I think this is my luggage.","Excuse me, I think this is my gate."],x:"“I think this is my seat” é uma forma gentil de corrigir."},
+{s:"The immigration officer asks:",q:"“Where are you staying?”",a:["At the Grand Hotel.","At Gate 12.","In seat 18A."],x:"“Where are you staying?” pergunta o local de hospedagem."},
+{s:"You hear an announcement:",q:"“Your connecting flight to Rome is delayed by two hours.”",a:["I’ll have to wait longer at the airport.","My luggage is lost.","I lost my passport."],x:"“Delayed” = atrasado, então você vai esperar mais."},
+{s:"At baggage claim, your suitcase didn’t arrive.",a:["Excuse me, my suitcase didn’t arrive. Can you help me?","Excuse me, my suitcase didn’t arrive. Can I change seats?","Excuse me, my suitcase didn’t arrive. Which gate is it?"],x:"Explique o problema e peça ajuda: “Can you help me?”."}]}
+];
+const $=id=>document.getElementById(id),app=$("app");
+let S;
+const sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function hud(){
+ const path=W.map((_,i)=>`<i class="${i<S.w?"d":i==S.w?"c":""}"></i>`).join("");
+ return `<div class="hud px"><span>🪙 ${S.coins}</span><span>${"❤️".repeat(S.lives)}${"🖤".repeat(3-S.lives)}</span><span>⭐ ${S.cp.w+1}/7</span></div><div class="path">${path}</div>`}
+function show(h,withHud=true){app.innerHTML=(withHud?hud():"")+h;window.scrollTo(0,0)}
+function title(){
+ S={w:0,i:0,coins:0,lives:3,cp:{w:0,coins:0},miss:[],last:-1};
+ show(`<div class="card"><div class="big"><span class="plane">✈️</span></div><h1 class="px" style="text-align:center">Airport Adventure</h1><p>Cross the airport, solve real situations in English and reach your plane. Collect coins 🪙, keep your hearts ❤️ and reach the checkpoints ⭐.</p><p class="pt">Atravesse o aeroporto resolvendo situações reais em inglês. São 6 mundos e um chefe final.</p><button class="go" onclick="intro()">START</button></div>`,false)}
+function intro(){
+ const w=W[S.w];S.cp={w:S.w,coins:S.coins};S.i=0;S.lives=3;
+ show(`<div class="card"><div class="big">${w.e}</div><h2 class="px">${w.n}</h2><p>${w.t}</p><p class="pt">${w.p}</p><button class="go" onclick="ask()">GO!</button></div>`)}
+function ask(){
+ const w=W[S.w],q=w.q[S.i],boss=S.w==6;
+ let p;do{p=Math.random()*3|0}while(p==S.last);S.last=p;S.pos=p;
+ const others=sh([q.a[1],q.a[2]]);S.opts=[];
+ for(let k=0,o=0;k<3;k++)S.opts.push(k==p?q.a[0]:others[o++]);
+ show(`${boss?`<div class="hp"><div style="width:${(8-S.i)/8*100}%"></div></div>`:""}<div class="card"><p class="pt">${w.e} Question ${S.i+1} of ${w.q.length}</p><p>${q.s}</p>${q.b?`<div class="board">${q.b}</div>`:""}${q.q?`<div class="bubble">${q.q}</div>`:""}${S.opts.map((o,k)=>`<button class="opt" onclick="pick(${k})">${"ABC"[k]}) ${o}</button>`).join("")}<div id="fb"></div></div>`)}
+function pick(k){
+ const q=W[S.w].q[S.i],ok=k==S.pos,btns=document.querySelectorAll(".opt");
+ btns.forEach((b,j)=>{b.disabled=true;if(j==S.pos)b.classList.add("ok");else if(j==k)b.classList.add("no")});
+ if(ok)S.coins+=S.w==6?20:10;else{S.lives--;S.miss.push(q.a[0])}
+ $("fb").innerHTML=`<div class="fb ${ok?"":"bad"}">${ok?"✅ Correct! +"+(S.w==6?20:10)+" 🪙":"❌ Not quite. Correct: <b>"+q.a[0]+"</b>"}<br>${q.x}</div><button class="go" onclick="next()">${S.lives<1?"CONTINUE":"NEXT"}</button>`}
+function next(){
+ if(S.lives<1)return over();
+ S.i++;
+ if(S.i<W[S.w].q.length)return ask();
+ S.w==6?win():done()}
+function done(){
+ show(`<div class="card"><div class="big">⭐</div><h2 class="px">Checkpoint!</h2><p>You finished ${W[S.w].n}. Your progress is saved and your hearts are back to full.</p><p class="pt">Progresso salvo e corações restaurados.</p><button class="go" onclick="S.w++;intro()">NEXT WORLD</button></div>`)}
+function over(){
+ show(`<div class="card"><div class="big">💔</div><h2 class="px">Game over</h2><p>You ran out of hearts. Don’t worry, you can try this world again from your checkpoint.</p><p class="pt">Você pode tentar de novo a partir do último checkpoint.</p><button class="go" onclick="S.w=S.cp.w;S.coins=S.cp.coins;intro()">TRY AGAIN</button></div>`)}
+function win(){
+ const r=S.coins>=230?"Captain ✈️":S.coins>=170?"Frequent flyer 🌍":"Traveler 🧳",m=[...new Set(S.miss)];
+ show(`<div class="card"><div class="big">🏆</div><h2 class="px">You made it!</h2><p>Welcome to your destination. You collected <b>${S.coins} 🪙</b> and your rank is <b>${r}</b>.</p>${m.length?`<p class="pt">Frases para revisar:</p><ul>${m.map(x=>`<li>${x}</li>`).join("")}</ul>`:`<p class="pt">Sem erros para revisar. Perfeito!</p>`}<button class="go" onclick="title()">PLAY AGAIN</button></div>`)}
+title();
+</script>
+</body>
+</html>
